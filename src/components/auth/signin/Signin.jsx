@@ -2,24 +2,30 @@ import React, { Component } from 'react';
 import './Signin.scss';
 import CustomButton from '../../CustomButtom/CustomButton';
 import FormInput from '../../FormInput/FormInput';
-import { signInWithGoogle } from '../../../firebase/utils';
+import { auth, signInWithGoogle } from '../../../firebase/utils';
 
 class Signin extends Component {
   state = {
     email: '',
     password: ''
   };
-  onSubmit = e => {
-    e.preventDefault();
-    console.log(this.state);
-    this.setState({ email: '', password: '' });
+  onSubmit = async event => {
+    event.preventDefault();
+
+    const { email, password } = this.state;
+
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      this.setState({ email: '', password: '' });
+    } catch (error) {
+      console.log(error);
+    }
   };
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
-    // console.log(this.state);
   };
   render() {
-    const { email, password } = this.state;
+    //const { email, password } = this.state;
     return (
       <div className="sign-in">
         <h2>I already have an account</h2>
@@ -30,7 +36,7 @@ class Signin extends Component {
             name="email"
             label="EMAIL"
             onChange={this.onChange}
-            value={email}
+            value={this.state.email}
             required
           />
           <FormInput
@@ -38,7 +44,7 @@ class Signin extends Component {
             name="password"
             label="PASSWORD"
             onChange={this.onChange}
-            value={password}
+            value={this.state.password}
             required
           />
           <div className="buttons">

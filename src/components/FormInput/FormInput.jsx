@@ -4,7 +4,7 @@ import './FormInput.scss';
 const FormInput = ({ onChange, label, ...otherProps }) => {
   return (
     <div className="group">
-      <input className="form-input" onChange={onchange} {...otherProps} />
+      <input className="form-input" onChange={onChange} {...otherProps} />
       {label ? (
         <label
           className={`${

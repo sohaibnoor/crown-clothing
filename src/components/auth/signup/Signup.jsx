@@ -1,45 +1,94 @@
 import React, { Component } from 'react';
+import FormInput from '../../FormInput/FormInput';
+import CustomButton from '../../CustomButtom/CustomButton';
 
-class Signin extends Component {
+import { auth, createUserProfileDocument } from '../../../firebase/utils';
+
+import './Signup.scss';
+
+class Signup extends Component {
   state = {
+    displayName: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   };
-  onSubmit = e => {
-    e.preventDefault();
-    console.log(this.state);
-    this.setState({ email: '', password: '' });
+  onSubmit = async event => {
+    event.preventDefault();
+
+    const { displayName, email, password, confirmPassword } = this.state;
+
+    if (password !== confirmPassword) {
+      alert("passwords don't match");
+      return;
+    }
+
+    try {
+      const { user } = await auth.createUserWithEmailAndPassword(
+        email,
+        password
+      );
+
+      await createUserProfileDocument(user, { displayName });
+
+      this.setState({
+        displayName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
     // console.log(this.state);
   };
   render() {
-    const { email, password } = this.state;
+    const { displayName, email, password, confirmPassword } = this.state;
     return (
-      <div className="form">
-        <h2>I already have an account</h2>
-        <span>Sign in with your email and password</span>
-        <form onSubmit={this.onSubmit}>
-          <label htmlFor="email">Enter your email</label>
-          <input
+      <div className="sign-up">
+        <h2 className="title">I do not have a account</h2>
+        <span>Sign up with your email and password</span>
+        <form className="sign-up-form" onSubmit={this.onSubmit}>
+          <FormInput
+            type="text"
+            name="displayName"
+            onChange={this.onChange}
+            value={displayName}
+            label="Display Name"
+            required
+          />
+          <FormInput
             type="email"
             name="email"
             value={email}
             onChange={this.onChange}
+            label="Email"
+            required
           />
-          <label htmlFor="password">Enter your password</label>
-          <input
+          <FormInput
             type="password"
             name="password"
             value={password}
             onChange={this.onChange}
+            label="Password"
+            required
           />
-          <input type="submit" value="signin" />
+          <FormInput
+            type="password"
+            name="confirmPassword"
+            value={confirmPassword}
+            onChange={this.onChange}
+            label="Confirm Password"
+            required
+          />
+          <CustomButton type="submit">SIGN UP</CustomButton>
         </form>
       </div>
     );
   }
 }
 
-export default Signin;
+export default Signup;

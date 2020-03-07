@@ -4,8 +4,8 @@ import HomePage from './pages/Homepage/HomePage';
 import { Switch, Route } from 'react-router-dom';
 import Shop from './pages/shop/Shop';
 import Header from './components/Header/Header';
-import Signin from './components/auth/signin/Signin';
-import { auth } from './firebase/utils';
+import SigninAndSignup from './components/auth/SigninAndSignup';
+import { auth, createUserProfileDocument } from './firebase/utils';
 
 class App extends Component {
   state = {
@@ -15,10 +15,21 @@ class App extends Component {
   unsubscribeFromAuth = null;
 
   componentDidMount() {
-    // this.unsubscribeFromAuth =
-    auth.onAuthStateChanged(user => {
-      this.setState({ currentUser: user });
-      console.log(user);
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+
+        userRef.onSnapshot(snapShot => {
+          this.setState({
+            currentUser: {
+              id: snapShot.id,
+              ...snapShot.data()
+            }
+          });
+        });
+      }
+
+      this.setState({ currentUser: userAuth });
     });
   }
 
@@ -33,7 +44,7 @@ class App extends Component {
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route exact path="/shop" component={Shop} />
-          <Route exact path="/signin" component={Signin} />
+          <Route exact path="/signin" component={SigninAndSignup} />
         </Switch>
       </div>
     );
